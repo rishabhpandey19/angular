@@ -1,0 +1,55 @@
+name: Auto Commit
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+    - cron: '0 13 * * *'
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate file change
+        run: |
+          mkdir -p .activity
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          RANDOM_NOTE=$(shuf -n1 -e \
+            "Refactored module structure" \
+            "Updated dependency versions" \
+            "Improved code readability" \
+            "Optimized performance" \
+            "Fixed minor issues" \
+            "Cleaned up unused imports" \
+            "Updated configuration" \
+            "Minor improvements" \
+            "Code maintenance" \
+            "Updated project notes")
+          echo "[$TIMESTAMP] $RANDOM_NOTE" >> .activity/log.txt
+
+      - name: Commit and push
+        run: |
+          git config user.name "rishabhpandey19"
+          git config user.email "rishabhpandey19@gmail.com"
+          git add .activity/log.txt
+          git commit -m "chore: $(shuf -n1 -e \
+            'refactor module structure' \
+            'update dependencies' \
+            'improve readability' \
+            'optimize performance' \
+            'fix minor issues' \
+            'clean up imports' \
+            'update config' \
+            'minor improvements' \
+            'code maintenance' \
+            'update notes')"
+          git push
